@@ -53,6 +53,14 @@ def get_sensor_location_id(sensor, location_name):
     return sensor_location_id_mapping_df.query(query)['id'].values[0]
 
 
+def get_sensor_location_by_id(sensor_id):
+    query = 'id == @sensor_id'
+    results = sensor_location_id_mapping_df.query(query)[['sensor', 'location_name']].values
+    sensor = results[0, 0]
+    location_name = results[0, 1]
+    return sensor, location_name
+
+
 def create_forecast_table(locations, sensors_list, num_hours_to_save=6):
     cols = ['event_start', 'belief_time', 'source', 'sensor_id', 'event_value']
     source = Source.DARK_SKY.value
