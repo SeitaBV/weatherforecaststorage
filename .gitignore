@@ -3,3 +3,4 @@
 .ipynb_checkpoints
 *.iml
 *.zip
+weatherforecast/__pycache__/
