@@ -3,9 +3,11 @@ from weatherforecast.utils import location_utility
 from weatherforecast.utils.Sensor import Sensor
 import pandas as pd
 from hashlib import blake2b
+import logging
 
 
 def create_sensor_location_id_mapping_table(save_table: bool = True):
+    logging.info("Creating sensor_location_id mapping table")
     file_path: str = '../../data/sensor_location_id_mapping.csv'
     cols: List[str] = ['id', 'sensor', 'location_name', 'latitude', 'longitude']
     mapping_list = []
@@ -37,6 +39,7 @@ def create_sensor_location_id_mapping_table(save_table: bool = True):
 
 
 def create_sensor_location_id(sensor: str, location_name: str):
+    logging.debug("Creating sensor id for this sensor: {} and location: {}".format(sensor, location_name))
     hashing_algo = blake2b(digest_size=10)
     mapping_id = sensor + location_name
     hashing_algo.update(mapping_id.encode('utf-8'))

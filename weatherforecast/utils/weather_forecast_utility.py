@@ -8,6 +8,7 @@ import pandas as pd
 from weatherforecast.utils.Source import Source
 from datetime import datetime
 import configparser
+import logging
 
 config = configparser.ConfigParser()
 config.read('./config/configuration.ini')
@@ -18,6 +19,7 @@ sensor_location_id_mapping_df = read_sensor_location_id_mapping_table()
 
 def call_darksky(api_key: str, location: Tuple[float, float]) -> dict:
     """Make a single call to the Dark Sky API and return the result parsed as dict"""
+    logging.debug("Forecasting for this location {}".format(location))
     return ForecastIO.ForecastIO(
         api_key,
         units=ForecastIO.ForecastIO.UNITS_SI,
@@ -49,6 +51,7 @@ def save_forecasts_as_json(
 
 
 def get_sensor_location_id(sensor: str, location_name: str) -> str:
+    logging.debug('Getting sensor id for %s %s', sensor, location_name)
     query = 'sensor == @sensor  & location_name == @location_name'
     return sensor_location_id_mapping_df.query(query)['id'].values[0]
 
@@ -62,15 +65,19 @@ def get_sensor_location_by_id(sensor_id: str) -> (str, str):
 
 
 def create_forecast_table(locations: pd.DataFrame, sensors_list: List[str], num_hours_to_save: int = 6) -> pd.DataFrame:
+    logging.debug("Creating forecast table using these sensors: {} "
+                  "and saving the next {} hours".format(sensors_list, num_hours_to_save))
+
     cols = ['event_start', 'belief_time', 'source', 'sensor_id', 'event_value']
     source = Source.DARK_SKY.value
     forecast_list = []
     for location in locations.itertuples():
-        latLong = (location[1], location[2])
+        lat_long = (location[1], location[2])
         location_name = location[3]
+        logging.debug("Getting forecast for this location: {}".format(location_name))
 
         belief_time = datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")
-        hourly_forecast_48_list = call_darksky(API_KEY, latLong)['hourly']['data']
+        hourly_forecast_48_list = call_darksky(API_KEY, lat_long)['hourly']['data']
 
         for i in range(0, num_hours_to_save):
             forecast = hourly_forecast_48_list[i]
@@ -86,6 +93,7 @@ def create_forecast_table(locations: pd.DataFrame, sensors_list: List[str], num_
 def retrieve_and_insert_sensors_forecast(belief_time: str, event_start: str, forecast: dict,
                                          forecast_list: List[dict], location_name: str, sensors_list: List[str],
                                          source: int):
+    logging.debug("Retrieving and inserting sensors' values for this location %s", location_name)
     for sensor in sensors_list:
         sensor_id = get_sensor_location_id(sensor, location_name)
         event_value = forecast[sensor]
@@ -94,6 +102,8 @@ def retrieve_and_insert_sensors_forecast(belief_time: str, event_start: str, for
 
 def insert_forecast_entry(belief_time: str, event_start: str, event_value: float, forecast_list: List[dict],
                           sensor_id: str, source: int):
+    logging.debug(
+        "Inserting new entry: {}, {}, {}, {}, {}".format(event_start, belief_time, source, sensor_id, event_value))
     forecast_list.append({
         'event_start': event_start,
         'belief_time': belief_time,
