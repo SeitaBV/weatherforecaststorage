@@ -6,7 +6,7 @@ from hashlib import blake2b
 import logging
 
 
-def create_sensor_location_id_mapping_table(save_table: bool = True):
+def create_sensor_location_id_mapping_table(save_table: bool = True) -> pd.DataFrame:
     logging.info("Creating sensor_location_id mapping table")
     file_path: str = '../../data/sensor_location_id_mapping.csv'
     cols: List[str] = ['id', 'sensor', 'location_name', 'latitude', 'longitude']
@@ -38,7 +38,7 @@ def create_sensor_location_id_mapping_table(save_table: bool = True):
     return df
 
 
-def create_sensor_location_id(sensor: str, location_name: str):
+def create_sensor_location_id(sensor: str, location_name: str) -> str:
     logging.debug("Creating sensor id for this sensor: {} and location: {}".format(sensor, location_name))
     hashing_algo = blake2b(digest_size=10)
     mapping_id = sensor + location_name
@@ -46,6 +46,6 @@ def create_sensor_location_id(sensor: str, location_name: str):
     return hashing_algo.hexdigest()
 
 
-def read_sensor_location_id_mapping_table():
+def read_sensor_location_id_mapping_table() -> pd.DataFrame:
     file_path = '../data/sensor_location_id_mapping.csv'
     return pd.read_csv(file_path)
