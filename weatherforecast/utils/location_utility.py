@@ -7,7 +7,7 @@ cities_df = pd.read_csv('../data/City-geolocation-en.csv', usecols=selected_colu
 city_location_columns = ['city_name', 'subdivision_1_name', 'country_name', 'latitude', 'longitude']
 
 
-def _create_location_name_column(df):
+def _create_location_name_column(df: pd.DataFrame):
     df['location_name'] = df['city_name'] + '_' + df['subdivision_1_name'] + '_' + df['country_name']
     df.drop(['city_name', 'subdivision_1_name', 'country_name'], axis=1, inplace=True)
 
@@ -18,26 +18,26 @@ def get_all_cities_locations():
     return df
 
 
-def get_cities_locations_by_continent(continent_name):
+def get_cities_locations_by_continent(continent_name: str):
     df = cities_df.query('continent_name == @continent_name')[city_location_columns].copy().reset_index(drop=True)
     _create_location_name_column(df)
     return df
 
 
-def get_cities_locations_by_country(country_name):
+def get_cities_locations_by_country(country_name: str):
     df = cities_df.query('country_name == @country_name')[city_location_columns].copy().reset_index(drop=True)
     _create_location_name_column(df)
     return df
 
 
-def get_cities_locations_by_subdivision(subdivision_name):
+def get_cities_locations_by_subdivision(subdivision_name: str):
     df = cities_df.query('subdivision_1_name == @subdivision_name')[city_location_columns].copy().reset_index(
         drop=True)
     _create_location_name_column(df)
     return df
 
 
-def get_cities_locations_by_time_zone(time_zone):
+def get_cities_locations_by_time_zone(time_zone: str):
     df = cities_df.query('time_zone == @time_zone')[city_location_columns].copy().reset_index(drop=True)
     _create_location_name_column(df)
     return df
@@ -49,7 +49,7 @@ def get_cities_locations_in_european_union():
     return df
 
 
-def get_city_location(city_name, country_name, subdivision_name=None):
+def get_city_location(city_name: str, country_name: str, subdivision_name: str = None):
     if subdivision_name is None:
         query = 'city_name == @city_name & country_name == @country_name'
     else:

@@ -4,7 +4,7 @@ import pandas as pd
 from hashlib import blake2b
 
 
-def create_sensor_location_id_mapping_table(save_table=True):
+def create_sensor_location_id_mapping_table(save_table: bool = True):
     file_path = '../../data/sensor_location_id_mapping.csv'
     cols = ['id', 'sensor', 'location_name', 'latitude', 'longitude']
     mapping_list = []
@@ -35,7 +35,7 @@ def create_sensor_location_id_mapping_table(save_table=True):
     return df
 
 
-def create_sensor_location_id(sensor, location_name):
+def create_sensor_location_id(sensor: str, location_name: str):
     hashing_algo = blake2b(digest_size=10)
     mapping_id = sensor + location_name
     hashing_algo.update(mapping_id.encode('utf-8'))

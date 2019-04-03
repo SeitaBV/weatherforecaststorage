@@ -48,12 +48,12 @@ def save_forecasts_as_json(
             json.dump(forecasts, outfile)
 
 
-def get_sensor_location_id(sensor, location_name):
+def get_sensor_location_id(sensor: str, location_name: str) -> str:
     query = 'sensor == @sensor  & location_name == @location_name'
     return sensor_location_id_mapping_df.query(query)['id'].values[0]
 
 
-def get_sensor_location_by_id(sensor_id):
+def get_sensor_location_by_id(sensor_id: str) -> (str, str):
     query = 'id == @sensor_id'
     results = sensor_location_id_mapping_df.query(query)[['sensor', 'location_name']].values
     sensor = results[0, 0]
@@ -61,7 +61,7 @@ def get_sensor_location_by_id(sensor_id):
     return sensor, location_name
 
 
-def create_forecast_table(locations, sensors_list, num_hours_to_save=6):
+def create_forecast_table(locations: pd.DataFrame, sensors_list: List[str], num_hours_to_save: int = 6) -> pd.DataFrame:
     cols = ['event_start', 'belief_time', 'source', 'sensor_id', 'event_value']
     source = Source.DARK_SKY.value
     forecast_list = []
@@ -83,15 +83,17 @@ def create_forecast_table(locations, sensors_list, num_hours_to_save=6):
     return forecast_df
 
 
-def retrieve_and_insert_sensors_forecast(belief_time, event_start, forecast, forecast_list, location_name, sensors_list,
-                                         source):
+def retrieve_and_insert_sensors_forecast(belief_time: datetime, event_start: datetime, forecast: dict,
+                                         forecast_list: List[dict], location_name: str, sensors_list: List[str],
+                                         source: int):
     for sensor in sensors_list:
         sensor_id = get_sensor_location_id(sensor, location_name)
         event_value = forecast[sensor]
         insert_forecast_entry(belief_time, event_start, event_value, forecast_list, sensor_id, source)
 
 
-def insert_forecast_entry(belief_time, event_start, event_value, forecast_list, sensor_id, source):
+def insert_forecast_entry(belief_time: datetime, event_start: datetime, event_value: float, forecast_list: List[dict],
+                          sensor_id: str, source: int):
     forecast_list.append({
         'event_start': event_start,
         'belief_time': belief_time,
