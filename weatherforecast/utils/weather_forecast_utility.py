@@ -11,7 +11,7 @@ import configparser
 
 config = configparser.ConfigParser()
 config.read('./config/configuration.ini')
-API_KEY = config.get('DARK_SKY', 'API_KEY')
+API_KEY: str = config.get('DARK_SKY', 'API_KEY')
 
 sensor_location_id_mapping_df = read_sensor_location_id_mapping_table()
 
@@ -83,7 +83,7 @@ def create_forecast_table(locations: pd.DataFrame, sensors_list: List[str], num_
     return forecast_df
 
 
-def retrieve_and_insert_sensors_forecast(belief_time: datetime, event_start: datetime, forecast: dict,
+def retrieve_and_insert_sensors_forecast(belief_time: str, event_start: str, forecast: dict,
                                          forecast_list: List[dict], location_name: str, sensors_list: List[str],
                                          source: int):
     for sensor in sensors_list:
@@ -92,7 +92,7 @@ def retrieve_and_insert_sensors_forecast(belief_time: datetime, event_start: dat
         insert_forecast_entry(belief_time, event_start, event_value, forecast_list, sensor_id, source)
 
 
-def insert_forecast_entry(belief_time: datetime, event_start: datetime, event_value: float, forecast_list: List[dict],
+def insert_forecast_entry(belief_time: str, event_start: str, event_value: float, forecast_list: List[dict],
                           sensor_id: str, source: int):
     forecast_list.append({
         'event_start': event_start,

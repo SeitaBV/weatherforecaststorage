@@ -2,4 +2,4 @@ from enum import Enum
 
 
 class Source(Enum):
-    DARK_SKY = 1
+    DARK_SKY: int = 1

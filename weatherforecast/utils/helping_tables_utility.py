@@ -1,3 +1,4 @@
+from typing import List
 from weatherforecast.utils import location_utility
 from weatherforecast.utils.Sensor import Sensor
 import pandas as pd
@@ -5,8 +6,8 @@ from hashlib import blake2b
 
 
 def create_sensor_location_id_mapping_table(save_table: bool = True):
-    file_path = '../../data/sensor_location_id_mapping.csv'
-    cols = ['id', 'sensor', 'location_name', 'latitude', 'longitude']
+    file_path: str = '../../data/sensor_location_id_mapping.csv'
+    cols: List[str] = ['id', 'sensor', 'location_name', 'latitude', 'longitude']
     mapping_list = []
     locations = location_utility.get_all_cities_locations()
     sensors = Sensor.ALL.value

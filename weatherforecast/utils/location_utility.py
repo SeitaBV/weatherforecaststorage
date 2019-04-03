@@ -1,10 +1,11 @@
+from typing import List
 import pandas as pd
 
-selected_columns = ['continent_name', 'country_name', 'subdivision_1_name', 'city_name', 'time_zone',
-                    'is_in_european_union', 'latitude', 'longitude']
-cities_df = pd.read_csv('../data/City-geolocation-en.csv', usecols=selected_columns)
+selected_columns: List[str] = ['continent_name', 'country_name', 'subdivision_1_name', 'city_name', 'time_zone',
+                               'is_in_european_union', 'latitude', 'longitude']
+cities_df: pd.DataFrame = pd.read_csv('../data/City-geolocation-en.csv', usecols=selected_columns)
 
-city_location_columns = ['city_name', 'subdivision_1_name', 'country_name', 'latitude', 'longitude']
+city_location_columns: List[str] = ['city_name', 'subdivision_1_name', 'country_name', 'latitude', 'longitude']
 
 
 def _create_location_name_column(df: pd.DataFrame):
