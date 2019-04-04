@@ -36,7 +36,6 @@ def update_forecast(historical_forecast: pd.DataFrame, current_forecast: pd.Data
 
 
 if __name__ == '__main__':
-    # logging.basicConfig(filename='weather_forecast.log', level=logging.DEBUG)
     logging.basicConfig(level=logging.DEBUG)
     historical_forecast = pd.read_csv('%s/forecasts.csv' % path_to_data())
 
@@ -48,6 +47,7 @@ if __name__ == '__main__':
     new_entries = update_forecast(historical_forecast, current_forecast)
 
     logging.info('Adding {} new entries'.format(new_entries.shape[0]))
+
     if new_entries.shape[0] > 0:
         historical_forecast = historical_forecast.append(new_entries, ignore_index=True, sort=True)
         historical_forecast.to_csv('%s/forecasts.csv' % path_to_data(), index=False, columns=current_forecast.columns)
