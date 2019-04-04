@@ -12,7 +12,6 @@ import logging
 
 from weatherforecast.utils import path_to_data, path_to_config
 
-
 config = configparser.ConfigParser()
 config.read('%s/configuration.ini' % path_to_config())
 API_KEY: str = config.get('DARK_SKY', 'API_KEY')
@@ -67,7 +66,8 @@ def get_sensor_location_by_id(sensor_id: str) -> (str, str):
     return sensor, location_name
 
 
-def create_forecast_table(locations: pd.DataFrame, sensors_list: List[str], num_hours_to_save: int = 6) -> pd.DataFrame:
+def create_forecast_table(locations: pd.DataFrame, sensors_list: List[str], num_hours_to_save: int = 6,
+                          overwrite_forecast_file: bool = False) -> pd.DataFrame:
     logging.debug("Creating forecast table using these sensors: {} "
                   "and saving the next {} hours".format(sensors_list, num_hours_to_save))
 
@@ -89,7 +89,10 @@ def create_forecast_table(locations: pd.DataFrame, sensors_list: List[str], num_
                                                  sensors_list, source)
 
     forecast_df = pd.DataFrame(data=forecast_list, columns=cols)
-    forecast_df.to_csv('%s/forecasts.csv' % path_to_data(), index=False)
+
+    if overwrite_forecast_file:
+        forecast_df.to_csv('%s/forecasts.csv' % path_to_data(), index=False, columns=cols)
+
     return forecast_df
 
 

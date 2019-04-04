@@ -10,7 +10,7 @@ if __name__ == '__main__':
     locations = location_utility.get_city_location('Amsterdam', 'Netherlands')
     sensors = Sensor.ALL.value
 
-    forecast_df = create_forecast_table(locations, sensors)
+    forecast_df = create_forecast_table(locations, sensors, overwrite_forecast_file=True)
     print(forecast_df.head())
 
     location_utility.plot_locations_on_map(city, locations)
