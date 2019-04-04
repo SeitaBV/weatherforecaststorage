@@ -4,3 +4,5 @@
 *.iml
 *.zip
 __pycache__/
+data/forecasts.csv
+leaflet-map/*
