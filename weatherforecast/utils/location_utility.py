@@ -6,9 +6,12 @@ from folium import features
 import os
 import logging
 
+from weatherforecast.utils import path_to_data, path_to_maps
+
+
 selected_columns: List[str] = ['continent_name', 'country_name', 'subdivision_1_name', 'city_name', 'time_zone',
                                'is_in_european_union', 'latitude', 'longitude']
-cities_df: pd.DataFrame = pd.read_csv('../data/City-geolocation-en-v2.csv', usecols=selected_columns)
+cities_df: pd.DataFrame = pd.read_csv('%s/City-geolocation-en-v2.csv' % path_to_data(), usecols=selected_columns)
 cities_df[['city_name', 'subdivision_1_name']] = cities_df[['city_name', 'subdivision_1_name']].fillna('')
 
 city_location_columns: List[str] = ['city_name', 'subdivision_1_name', 'country_name', 'latitude', 'longitude']
@@ -92,5 +95,5 @@ def plot_locations_on_map(file_name: str, locations: pd.DataFrame):
         marker.add_child(popup)
         leaflet_map.add_child(marker)
 
-    leaflet_map.save(os.path.join('..', os.path.join('leaflet-map', file_name)))
-    webbrowser.open_new_tab(os.path.join('..', os.path.join('leaflet-map', file_name)))
+    leaflet_map.save(os.path.join(path_to_maps(), file_name))
+    webbrowser.open_new_tab(os.path.join(path_to_maps(), file_name))
