@@ -8,7 +8,7 @@ import logging
 
 selected_columns: List[str] = ['continent_name', 'country_name', 'subdivision_1_name', 'city_name', 'time_zone',
                                'is_in_european_union', 'latitude', 'longitude']
-cities_df: pd.DataFrame = pd.read_csv('../data/City-geolocation-en.csv', usecols=selected_columns)
+cities_df: pd.DataFrame = pd.read_csv('../data/City-geolocation-en-v2.csv', usecols=selected_columns)
 cities_df[['city_name', 'subdivision_1_name']] = cities_df[['city_name', 'subdivision_1_name']].fillna('')
 
 city_location_columns: List[str] = ['city_name', 'subdivision_1_name', 'country_name', 'latitude', 'longitude']
