@@ -5,10 +5,12 @@ import pandas as pd
 from hashlib import blake2b
 import logging
 
+from weatherforecast.utils import path_to_data
+
 
 def create_sensor_location_id_mapping_table(save_table: bool = True) -> pd.DataFrame:
     logging.info("Creating sensor_location_id mapping table")
-    file_path: str = '../../data/sensor_location_id_mapping.csv'
+    file_path: str = '%s/sensor_location_id_mapping.csv' % path_to_data()
     cols: List[str] = ['id', 'sensor', 'location_name', 'latitude', 'longitude']
     mapping_list = []
     locations = location_utility.get_all_cities_locations()
@@ -47,5 +49,5 @@ def create_sensor_location_id(sensor: str, location_name: str) -> str:
 
 
 def read_sensor_location_id_mapping_table() -> pd.DataFrame:
-    file_path = '../data/sensor_location_id_mapping.csv'
+    file_path = '%s/sensor_location_id_mapping.csv' % path_to_data()
     return pd.read_csv(file_path)

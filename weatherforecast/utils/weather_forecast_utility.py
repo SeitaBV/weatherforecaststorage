@@ -10,8 +10,11 @@ from datetime import datetime
 import configparser
 import logging
 
+from weatherforecast.utils import path_to_data, path_to_config
+
+
 config = configparser.ConfigParser()
-config.read('./config/configuration.ini')
+config.read('%s/configuration.ini' % path_to_config())
 API_KEY: str = config.get('DARK_SKY', 'API_KEY')
 
 sensor_location_id_mapping_df = read_sensor_location_id_mapping_table()
@@ -86,7 +89,7 @@ def create_forecast_table(locations: pd.DataFrame, sensors_list: List[str], num_
                                                  sensors_list, source)
 
     forecast_df = pd.DataFrame(data=forecast_list, columns=cols)
-    forecast_df.to_csv('../data/forecasts.csv', index=False)
+    forecast_df.to_csv('%s/forecasts.csv' % path_to_data(), index=False)
     return forecast_df
 
 
