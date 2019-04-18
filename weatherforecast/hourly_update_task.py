@@ -1,5 +1,6 @@
+import os
 import pandas as pd
-from weatherforecast.utils import path_to_data, location_utility
+from weatherforecast.utils import path_to_data, location_utility, get_config
 from weatherforecast.utils.Sensor import Sensor
 from weatherforecast.utils.weather_forecast_utility import create_forecast_table
 import logging
@@ -7,6 +8,10 @@ import logging
 
 def forecast_is_new(historical_forecast: pd.DataFrame, event_start: str, source: int, sensor_id: str,
                     event_value: float) -> bool:
+    """Find out if this specific forecast haws already been added.
+    TODO: compare location, as well."""
+    if historical_forecast.empty:
+        return True
     query = 'event_start == @event_start & source == @source &' \
             ' sensor_id == @sensor_id & event_value == @event_value'
     temp = historical_forecast.query(query)
@@ -23,7 +28,7 @@ def update_forecast(historical_forecast: pd.DataFrame, current_forecast: pd.Data
         event_value: float = forecast[5]
 
         if forecast_is_new(historical_forecast, event_start, source, sensor_id, event_value):
-            logging.debug('Adding new entry')
+            logging.debug('Adding new entry for %s' % event_start)
             new_entries_list.append({
                 'event_start': event_start,
                 'belief_time': belief_time,
@@ -36,20 +41,31 @@ def update_forecast(historical_forecast: pd.DataFrame, current_forecast: pd.Data
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    historical_forecast = pd.read_csv('%s/forecasts.csv' % path_to_data())
-
-    locations = location_utility.get_city_location('Alexandria', 'Egypt')
+    logging.basicConfig(level=logging.INFO)
     sensors = Sensor.ALL.value
 
-    current_forecast = create_forecast_table(locations, sensors)
+    logging.info("Reading in existing forecasts ...")
+    if os.path.exists('%s/forecasts.csv' % path_to_data()):
+        historical_forecast = pd.read_csv('%s/forecasts.csv' % path_to_data())
+    else:
+        historical_forecast = pd.DataFrame()
 
-    new_entries = update_forecast(historical_forecast, current_forecast)
+    for forecast_location in get_config("LOCATIONS"):
+        city, country = [s.strip() for s in forecast_location.split(",")]
+     
+        logging.info("Getting weather forecasts for %s (%s) ..." % (city, country))
 
-    logging.info('Adding {} new entries'.format(new_entries.shape[0]))
+        city_locations = location_utility.get_city_location(city, country)
 
-    if new_entries.shape[0] > 0:
-        historical_forecast = historical_forecast.append(new_entries, ignore_index=True, sort=True)
-        historical_forecast.to_csv('%s/forecasts.csv' % path_to_data(), index=False, columns=current_forecast.columns)
+        logging.info("Asking DarkSky for forecasts and finding out which ones are novel ...")
+        current_forecast = create_forecast_table(city_locations, sensors)
+
+        new_entries = update_forecast(historical_forecast, current_forecast)
+
+        logging.info('Adding {} new entries'.format(new_entries.shape[0]))
+
+        if new_entries.shape[0] > 0:
+            historical_forecast = historical_forecast.append(new_entries, ignore_index=True, sort=True)
+            historical_forecast.to_csv('%s/forecasts.csv' % path_to_data(), index=False, columns=current_forecast.columns)
 
 

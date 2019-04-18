@@ -1,4 +1,15 @@
 import os.path
+import configparser
+
+
+def get_config(section: str = None, option: str = None) -> str:
+    if section is None:
+        raise Exception("Cannot get config when section is None ...")
+    config = configparser.ConfigParser()
+    config.read('%s/configuration.ini' % path_to_config())
+    if option is None:
+        return [v for _, v in config.items(section)]
+    return config.get(section, option)
 
 
 def _path_to_main() -> str:
