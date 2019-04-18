@@ -8,8 +8,11 @@ import logging
 
 def forecast_is_new(historical_forecast: pd.DataFrame, event_start: str, source: int, sensor_id: str,
                     event_value: float) -> bool:
-    """Find out if this specific forecast haws already been added.
-    TODO: compare location, as well."""
+    """Find out if this specific forecast has already been added.
+    TODO: Take belief time into account. We only want to compare to latest relevant belief.
+    For instance, we believed x, later y and even later x again. That is all valuable knowledge.
+    Should be rare, as beliefs usually become more accurate over time, but still.
+    """
     if historical_forecast.empty:
         return True
     query = 'event_start == @event_start & source == @source &' \
@@ -41,6 +44,13 @@ def update_forecast(historical_forecast: pd.DataFrame, current_forecast: pd.Data
 
 
 if __name__ == '__main__':
+    """
+    TODO: Two ways of configuring where forecasts are:
+    csv or DB (first gets a filename, second a connection string).
+    This affects also the forecast_is_new function (can become two functions),
+    update_forecast can be called filter_out_known_forecasts
+    and I suggest we make a new function for saving forecasts (to either CSV or DB).
+    """
     logging.basicConfig(level=logging.INFO)
     sensors = Sensor.ALL.value
 
@@ -62,10 +72,11 @@ if __name__ == '__main__':
 
         new_entries = update_forecast(historical_forecast, current_forecast)
 
-        logging.info('Adding {} new entries'.format(new_entries.shape[0]))
-
         if new_entries.shape[0] > 0:
+            logging.info('Adding {} new entries.'.format(new_entries.shape[0]))
             historical_forecast = historical_forecast.append(new_entries, ignore_index=True, sort=True)
             historical_forecast.to_csv('%s/forecasts.csv' % path_to_data(), index=False, columns=current_forecast.columns)
+        else:
+            logging.info('No new entries.')
 
 
