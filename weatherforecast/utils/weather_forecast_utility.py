@@ -7,14 +7,10 @@ from weatherforecast.utils.helping_tables_utility import read_sensor_location_id
 import pandas as pd
 from weatherforecast.utils.Source import Source
 from datetime import datetime
-import configparser
 import logging
 
-from weatherforecast.utils import path_to_data, path_to_config
+from weatherforecast.utils import get_config, path_to_data, path_to_config
 
-config = configparser.ConfigParser()
-config.read('%s/configuration.ini' % path_to_config())
-API_KEY: str = config.get('DARK_SKY', 'API_KEY')
 
 sensor_location_id_mapping_df = read_sensor_location_id_mapping_table()
 
@@ -73,14 +69,15 @@ def create_forecast_table(locations: pd.DataFrame, sensors_list: List[str], num_
 
     cols = ['event_start', 'belief_time', 'source', 'sensor_id', 'event_value']
     source = Source.DARK_SKY.value
+    api_key = get_config('DARK_SKY', 'API_KEY')
     forecast_list = []
     for location in locations.itertuples():
         lat_long = (location[1], location[2])
         location_name = location[3]
-        logging.debug("Getting forecast for this location: {}".format(location_name))
-
         belief_time = datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")
-        hourly_forecast_48_list = call_darksky(API_KEY, lat_long)['hourly']['data']
+        
+        logging.debug("Getting forecast for {} at belief time {} ...".format(location_name, belief_time))
+        hourly_forecast_48_list = call_darksky(api_key, lat_long)['hourly']['data']
 
         for i in range(0, num_hours_to_save):
             forecast = hourly_forecast_48_list[i]

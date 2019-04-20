@@ -66,7 +66,7 @@ def get_cities_locations_in_european_union() -> pd.DataFrame:
 
 
 def get_city_location(city_name: str, country_name: str, subdivision_name: str = None) -> pd.DataFrame:
-    logging.info("Getting %s %s", city_name, country_name)
+    logging.info("Looking up location of %s, %s", city_name, country_name)
     if subdivision_name is None:
         query = 'city_name == @city_name & country_name == @country_name'
     else:
