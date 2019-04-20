@@ -3,6 +3,11 @@ from weatherforecast.utils import path_to_data, location_utility
 from weatherforecast.utils.Sensor import Sensor
 from weatherforecast.utils.weather_forecast_utility import create_forecast_table
 import logging
+from celery import Celery
+from celery.schedules import crontab
+
+app = Celery()
+# app.conf.broker_url = 'redis://localhost:6379/0'
 
 
 def forecast_is_new(historical_forecast: pd.DataFrame, event_start: str, source: int, sensor_id: str,
@@ -35,11 +40,17 @@ def update_forecast(historical_forecast: pd.DataFrame, current_forecast: pd.Data
     return pd.DataFrame(new_entries_list, columns=current_forecast.columns)
 
 
-if __name__ == '__main__':
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(3600, cron_task(), name='add every hour')
+
+
+@app.task
+def cron_task():
     logging.basicConfig(level=logging.DEBUG)
     historical_forecast = pd.read_csv('%s/forecasts.csv' % path_to_data())
 
-    locations = location_utility.get_city_location('Alexandria', 'Egypt')
+    locations = location_utility.get_city_location('Amsterdam', 'Netherlands')
     sensors = Sensor.ALL.value
 
     current_forecast = create_forecast_table(locations, sensors)
@@ -51,5 +62,3 @@ if __name__ == '__main__':
     if new_entries.shape[0] > 0:
         historical_forecast = historical_forecast.append(new_entries, ignore_index=True, sort=True)
         historical_forecast.to_csv('%s/forecasts.csv' % path_to_data(), index=False, columns=current_forecast.columns)
-
-
