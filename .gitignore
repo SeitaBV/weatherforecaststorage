@@ -1,5 +1,6 @@
 .idea
 .idea\*
+.vscode
 .ipynb_checkpoints
 *.iml
 *.zip
