@@ -1,15 +1,16 @@
 import array
 import random
 from typing import List, Tuple
-
 import numpy as np
 from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
 import pandas as pd
-
-from weatherforecast.utils.haversine import haversine_distance_vec, haversine_distance
+from scipy.spatial.qhull import ConvexHull
+from area import area
+# import multiprocessing
+from weatherforecast.utils.haversine import haversine_distance_vec
 
 
 class OptimalLocationsFinder:
@@ -17,10 +18,8 @@ class OptimalLocationsFinder:
     def __init__(self, locations: pd.DataFrame, new_locations_size: int) -> None:
         self.locations = locations
         self.new_locations_size = new_locations_size
-        # self.haversine_vec = np.vectorize(haversine_distance_vec, otypes=[np.float32])
 
     def _eval_solution(self, individual: List[int]) -> Tuple[float]:
-
         if len(individual) == 1:
             return 0,
 
@@ -32,12 +31,14 @@ class OptimalLocationsFinder:
         distances = haversine_distance_vec(locations_matrix['latitude_1'], locations_matrix['longitude_1'],
                                            locations_matrix['latitude_2'], locations_matrix['longitude_2'])
         mean_distance = distances.median()
-        # mean_distance: float = selected_locations.groupby('location_name') \
-        #     .apply(lambda location: pd.Series(
-        #     self.haversine_vec(location.latitude, location.longitude, selected_locations.latitude,
-        #                        selected_locations.longitude))).mean().mean()
 
-        return mean_distance,
+        if len(individual) > 4:
+            area_sq_km = self.calculate_area(selected_locations)
+            fitness = mean_distance + area_sq_km
+        else:
+            fitness = mean_distance
+
+        return fitness,
 
     def find_optimal_locations(self):
         IND_SIZE = self.new_locations_size
@@ -50,8 +51,11 @@ class OptimalLocationsFinder:
 
         toolbox = base.Toolbox()
 
+        # pool = multiprocessing.Pool()
+        # toolbox.register("map", pool.map)
+
         # Attribute generator
-        toolbox.register("indices", random.sample, range(self.locations.shape[0] - 1), IND_SIZE)
+        toolbox.register("indices", random.sample, range(self.locations.shape[0]), IND_SIZE)
 
         # Structure initializers
         toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices)
@@ -73,14 +77,15 @@ class OptimalLocationsFinder:
         stats.register("min", np.min)
         stats.register("max", np.max)
 
-        algorithms.eaSimple(pop, toolbox, 0.3, 0.1, 15, stats=stats,
+        algorithms.eaSimple(pop, toolbox, 0.2, 0.4, 10, stats=stats,
                             halloffame=hof)
 
         optimal_locations_indices = hof.items[0]
 
         return self.locations.iloc[optimal_locations_indices, :].copy()
 
-    def create_locations_matrix(self, selected_locations):
+    @staticmethod
+    def create_locations_matrix(selected_locations: pd.DataFrame) -> pd.DataFrame:
         locations = selected_locations.values
         data = []
         columns = ['location_1', 'longitude_1', 'latitude_1', 'location_2', 'longitude_2', 'latitude_2']
@@ -98,3 +103,16 @@ class OptimalLocationsFinder:
                 })
 
         return pd.DataFrame(data=data, columns=columns)
+
+    def calculate_area(self, selected_locations: pd.DataFrame) -> float:
+        points = selected_locations.loc[:, ['longitude', 'latitude']].values
+        hull = self.calculate_convex_hull(points)
+        geojson_object = {'type': 'Polygon', 'coordinates': [hull.tolist()]}
+        area_sq_km = area(geojson_object) / 1e+6
+        return area_sq_km
+
+    @staticmethod
+    def calculate_convex_hull(points: np.ndarray) -> np.ndarray:
+        hull = ConvexHull(points)
+        hull_points = points[hull.vertices, :]
+        return hull_points

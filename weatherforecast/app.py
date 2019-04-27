@@ -7,7 +7,7 @@ import logging
 if __name__ == '__main__':
     # logging.basicConfig(filename='weather_forecast.log', level=logging.DEBUG)
     logging.basicConfig(level=logging.DEBUG)
-    location = 'Egypt'
+    location = 'Netherlands'
     locations = location_utility.get_cities_locations_by_country(location)
     sensors = Sensor.ALL.value
 
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     # print(forecast_df.head())
 
     logging.info('Number of locations in {}: {}'.format(location, locations.shape[0]))
-    optimal_locations_finder = OptimalLocationsFinder(locations, 5)
+    optimal_locations_finder = OptimalLocationsFinder(locations, 60)
     optimal_locations = optimal_locations_finder.find_optimal_locations()
 
     location_utility.plot_locations_on_map(location, optimal_locations)
