@@ -1,6 +1,6 @@
 from typing import List
 from weatherforecast.utils import location_utility
-from weatherforecast.utils.Sensor import Sensor
+from weatherforecast.utils.Sensor import SensorName
 import pandas as pd
 from hashlib import blake2b
 import logging
@@ -10,11 +10,11 @@ from weatherforecast.utils import path_to_data
 
 def create_sensor_location_id_mapping_table(save_table: bool = True) -> pd.DataFrame:
     logging.info("Creating sensor_location_id mapping table")
-    file_path: str = '%s/sensor_location_id_mapping.csv' % path_to_data()
-    cols: List[str] = ['id', 'sensor', 'location_name', 'latitude', 'longitude']
+    file_path: str = "%s/sensor_location_id_mapping.csv" % path_to_data()
+    cols: List[str] = ["id", "sensor", "location_name", "latitude", "longitude"]
     mapping_list = []
     locations = location_utility.get_all_cities_locations()
-    sensors = Sensor.ALL.value
+    sensor_names = SensorName.ALL.value
 
     for location in locations.itertuples():
         latitude = location[1]
@@ -22,13 +22,13 @@ def create_sensor_location_id_mapping_table(save_table: bool = True) -> pd.DataF
         location_name = location[3]
 
         if isinstance(location_name, str):
-            for sensor in sensors:
+            for sensor in sensor_names:
                 data = {
-                    'id': create_sensor_location_id(sensor, location_name),
-                    'sensor': sensor,
-                    'location_name': location_name,
-                    'latitude': latitude,
-                    'longitude': longitude
+                    "id": create_sensor_location_id(sensor, location_name),
+                    "sensor": sensor,
+                    "location_name": location_name,
+                    "latitude": latitude,
+                    "longitude": longitude,
                 }
 
                 mapping_list.append(data)
@@ -41,13 +41,17 @@ def create_sensor_location_id_mapping_table(save_table: bool = True) -> pd.DataF
 
 
 def create_sensor_location_id(sensor: str, location_name: str) -> str:
-    logging.debug("Creating sensor id for this sensor: {} and location: {}".format(sensor, location_name))
+    logging.debug(
+        "Creating sensor id for this sensor: {} and location: {}".format(
+            sensor, location_name
+        )
+    )
     hashing_algo = blake2b(digest_size=10)
     mapping_id = sensor + location_name
-    hashing_algo.update(mapping_id.encode('utf-8'))
+    hashing_algo.update(mapping_id.encode("utf-8"))
     return hashing_algo.hexdigest()
 
 
 def read_sensor_location_id_mapping_table() -> pd.DataFrame:
-    file_path = '%s/sensor_location_id_mapping.csv' % path_to_data()
+    file_path = "%s/sensor_location_id_mapping.csv" % path_to_data()
     return pd.read_csv(file_path)

@@ -2,11 +2,17 @@ import os.path
 import configparser
 
 
+cols = ["event_start", "belief_time", "source", "sensor_id", "event_value"]
+
+
 def get_config(section: str = None, option: str = None) -> str:
     if section is None:
         raise Exception("Cannot get config when section is None ...")
+    conf_file_path = "%s/configuration.ini" % path_to_config()
+    if not os.path.exists(conf_file_path):
+        raise Exception("Cannot find configuration file at %s" % conf_file_path)
     config = configparser.ConfigParser()
-    config.read('%s/configuration.ini' % path_to_config())
+    config.read(conf_file_path)
     if option is None:
         return [v for _, v in config.items(section)]
     return config.get(section, option)

@@ -6,3 +6,4 @@ folium==0.8.3
 scipy==1.2.0
 numpy==1.16.0
 python_crontab==2.3.6
+timely_beliefs>=0.0.6.dev97121

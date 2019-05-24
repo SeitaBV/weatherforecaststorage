@@ -1,0 +1,13 @@
+[DARK_SKY]
+API_KEY: <YOUR_DARKSKY_APIKEY>
+
+[LOCATIONS]
+city1: Amsterdam, Netherlands
+city2: Alexandria, Egypt
+# Tip: Look these up in data/City-geolocation-en.csv for city_name and country_name
+
+[PERSISTENCE]
+#type: file
+#name: forecasts.csv
+type: db
+name: postgresql://weatherforecaster:www@127.0.0.1/weatherforecasts
