@@ -8,3 +8,4 @@ __pycache__/
 data/forecasts.csv
 leaflet-map/*
 TODO_list.txt
+weatherforecast/config/configuration.ini
