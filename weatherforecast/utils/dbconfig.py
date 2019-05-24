@@ -4,7 +4,6 @@ from datetime import timedelta, datetime
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy import Column, Float, String
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 
 from weatherforecast.utils import get_config
 from timely_beliefs import DBBeliefSource, DBSensor, DBTimedBelief
@@ -25,24 +24,15 @@ class DBLocatedSensor(DBSensor):
 
     def __init__(
         self,
-        name: str = "",
-        unit: str = "",
-        timezone: str = "UTC",
         latitude: float = None,
         longitude: float = None,
         location_name: str = "",
-        event_resolution: Optional[timedelta] = None,
-        knowledge_horizon: Optional[
-            Union[timedelta, Tuple[Callable[[datetime, Any], timedelta], dict]]
-        ] = None,
+        **kwargs
     ):
         self.latitude = latitude
         self.longitude = longitude
         self.location_name = location_name
-        DBSensor.__init__(
-            self, name, unit, timezone, event_resolution, knowledge_horizon
-        )
-        TBBase.__init__(self)
+        DBSensor.__init__(self, **kwargs)
 
     def __repr__(self):
         return "<DBLocatedSensor: %s (%s) at (%.2f|%.2f:%s)>" % (
@@ -110,40 +100,3 @@ def get_or_create_sensors_for(
     if added_sensors_to_db:
         session.commit()
     return sensors
-
-
-'''
-db = None
-Base = None
-session_options = None
-
-def init_db():
-    """Initialise the database object"""
-    global db, Base, session_options
-    db = SQLAlchemy(session_options=session_options)
-    Base = declarative_base()
-    Base.query = None
-
-
-def configure_db():
-    """Call this to configure the database.
-    This should only be called once in the app's lifetime."""
-    global db, Base
-
-    Base.query = db.session.query_property()
-
-    # Import all modules here that might define models so that
-    # they will be registered properly on the metadata. Otherwise
-    # you will have to import them first before calling configure_db().
-    from bvp.data.models import (  # noqa: F401
-        assets,
-        data_sources,
-        markets,
-        weather,
-        user,
-        task_runs,
-        forecasting,
-    )  # noqa: F401
-
-    Base.metadata.create_all(bind=db.engine)
-'''
