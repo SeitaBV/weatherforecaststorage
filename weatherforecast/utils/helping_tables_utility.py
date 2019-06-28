@@ -1,9 +1,12 @@
 from typing import List
-from weatherforecast.utils import location_utility
-from weatherforecast.utils.Sensor import SensorName
+import os
+import logging
+
 import pandas as pd
 from hashlib import blake2b
-import logging
+
+from weatherforecast.utils import location_utility
+from weatherforecast.utils.Sensor import SensorName
 
 from weatherforecast.utils import path_to_data
 
@@ -54,4 +57,6 @@ def create_sensor_location_id(sensor: str, location_name: str) -> str:
 
 def read_sensor_location_id_mapping_table() -> pd.DataFrame:
     file_path = "%s/sensor_location_id_mapping.csv" % path_to_data()
+    if not os.path.exists(file_path):
+        raise Exception("File %s does not exist and needs to be created (see Readme)." % file_path)
     return pd.read_csv(file_path)

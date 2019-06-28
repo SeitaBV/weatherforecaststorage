@@ -16,7 +16,8 @@ We save the forecasts based on a data model provided by [the TimleyBeliefs packa
 2. `pip install -r requirements.txt`
 3. `cp config/configuration.ini.sample config/configuration.ini`
 4. Adjust database connection string in config/configuration.ini
-5. Also adjust which cities you want to get forecasts for (an extensive list of cities worldwide is available in data/City_geolocation-en.csv)
+5. Also adjust in this config file which cities you want to get forecasts for
+  (an extensive list of cities worldwide is available in data/City_geolocation-en-v2.csv)
 6. Create a sensor/location lookup table:
     `python -c "from weatherforecast.utils import helping_tables_utility; helping_tables_utility.create_sensor_location_id_mapping_table()"`
 

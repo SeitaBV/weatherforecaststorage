@@ -9,3 +9,4 @@ data/forecasts.csv
 leaflet-map/*
 TODO_list.txt
 weatherforecast/config/configuration.ini
+data/sensor_location_id_mapping.csv
