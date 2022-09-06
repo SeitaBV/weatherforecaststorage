@@ -6,7 +6,7 @@ This is useful to run as an hourly (cron) job.
 DarkSky provides forecasts for many kinds of sensors (e.g. temperature, wind speed) up to 24 hours ahead.
 However, they do not store these forecasts for later retrieval. For past data, you'll only get actual measurements from their API. To train and test any forecasting model, you'll need actual forecasts and this tool helps you automate their collection.
 
-We save the forecasts based on a data model provided by [the TimleyBeliefs package](https://github.com/SeitaBV/timely-beliefs). This model connects sensors (which are automatically created for you) to forecasts (beliefs), and keeps track of event time and belief time.
+We save the forecasts based on a data model provided by [the TimelyBeliefs package](https://github.com/SeitaBV/timely-beliefs). This model connects sensors (which are automatically created for you) to forecasts (beliefs), and keeps track of event time and belief time.
 
 
 ## Setup
